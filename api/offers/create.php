@@ -7,7 +7,7 @@ $pdo = getPdo();
 $data = getJsonInput();
 $title = sanitizeText($data['title'] ?? '');
 $description = sanitizeText($data['description'] ?? '');
-discountPercent = isset($data['discountPercent']) && is_numeric($data['discountPercent']) ? max(0, min(99, (int)$data['discountPercent'])) : 0;
+$discountPercent = isset($data['discountPercent']) && is_numeric($data['discountPercent']) ? max(0, min(99, (int)$data['discountPercent'])) : 0;
 $imageUrl = sanitizeText($data['imageUrl'] ?? '');
 $productIds = is_array($data['productIds']) ? array_values(array_filter(array_map('intval', $data['productIds']), fn($id) => $id > 0)) : [];
 $isActive = parseBool($data['active'] ?? true);
