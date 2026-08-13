@@ -4,7 +4,8 @@ require_once __DIR__ . '/../../config/helpers.php';
 requireAuth();
 requireCsrfToken();
 $pdo = getPdo();
-$id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
+$data = getJsonInput();
+$id = isset($data['id']) ? (int) $data['id'] : 0;
 if ($id <= 0) {
     jsonResponse(['success' => false, 'error' => 'Invalid offer id'], 400);
 }
