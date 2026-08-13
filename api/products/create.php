@@ -26,7 +26,7 @@ if (!$name || !$slug || $price === null || $price < 0) {
     jsonResponse(['success' => false, 'error' => 'Missing required fields'], 400);
 }
 $stmt = $pdo->prepare('SELECT id FROM categories WHERE slug = ? LIMIT 1');
-stmt->execute([$categorySlug]);
+$stmt->execute([$categorySlug]);
 $category = $stmt->fetch();
 if (!$category) {
     jsonResponse(['success' => false, 'error' => 'Invalid category'], 400);
