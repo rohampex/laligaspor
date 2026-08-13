@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>داشبورد | مدیریت لالیگا</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body class="admin-layout">
+  <main class="admin-main" role="main">
+    <header>
+      <div><h1>داشبورد مدیریت</h1><p>نمای کلی از فروشگاه</p></div>
+    </header>
+    <div class="stat-grid" id="stat-grid" role="list" aria-label="آمار فروشگاه"></div>
+    <div class="card">
+      <div class="card-title">دسترسی سریع</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem">
+        <a href="/admin/products.html" class="btn btn-glass">مدیریت محصولات</a>
+        <a href="/admin/categories.html" class="btn btn-glass">دسته‌بندی‌ها</a>
+        <a href="/admin/blog.html" class="btn btn-glass">وبلاگ</a>
+        <a href="/admin/offers.html" class="btn btn-glass">پیشنهادات ویژه</a>
+        <a href="/admin/content.html" class="btn btn-glass">محتوای سایت</a>
+        <a href="/admin/settings.html" class="btn btn-glass">تنظیمات</a>
+      </div>
+    </div>
+  </main>
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+    LLadmin.bootstrap('dashboard');
+    (async function() {
+      const s = await LLbackend.getStats();
+      const stats = [
+        { label: 'محصولات', value: s.productsCount, icon: LLadmin.I.package },
+        { label: 'دسته‌بندی‌ها', value: s.categoriesCount, icon: LLadmin.I.tag },
+        { label: 'مقالات', value: s.blogCount, icon: LLadmin.I.file },
+        { label: 'پیشنهادات فعال', value: s.offersCount, icon: LLadmin.I.ticket }
+      ];
+      const wrap = document.getElementById('stat-grid');
+      stats.forEach((st, i) => {
+        const card = LLadmin.el(`
+          <div class="stat-card animate-fade-up" style="animation-delay:${i*80}ms" role="listitem">
+            <div class="icon" aria-hidden="true">${st.icon}</div>
+            <div class="label">${st.label}</div>
+            <div class="value">${LLutil.toFa(st.value)}</div>
+          </div>
+        `);
+        wrap.append(card);
+      });
+    })();
+  </script>
+</body>
+</html>

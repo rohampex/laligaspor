@@ -1,0 +1,223 @@
+/* LaLiga Sports — Animations & Scroll Reveal
+   GPU-accelerated (transform + opacity only).
+   Respects prefers-reduced-motion. */
+
+/* =============================================
+   KEYFRAMES
+   ============================================= */
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.95) translateY(14px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+@keyframes modal-out {
+  from { opacity: 1; transform: scale(1)    translateY(0); }
+  to   { opacity: 0; transform: scale(0.95) translateY(14px); }
+}
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes grad-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes bg-drift {
+  0%   { transform: scale(1.04) translateX(0); }
+  50%  { transform: scale(1.08) translateX(-8px); }
+  100% { transform: scale(1.04) translateX(0); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 102, 255, 0); }
+  50%       { box-shadow: 0 0 20px 4px rgba(0, 102, 255, 0.25); }
+}
+
+/* =============================================
+   LEGACY UTILITY CLASSES (kept for compat)
+   ============================================= */
+
+.animate-fade-up { animation: fade-up .6s cubic-bezier(.4,0,.2,1) both; }
+.animate-fade-in { animation: fade-in .5s ease both; }
+
+/* =============================================
+   HERO STAGGER ENTRANCE (immediate, above fold)
+   ============================================= */
+
+.hero-enter {
+  animation: hero-fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+.hero-enter-1 { animation-delay: 0ms; }
+.hero-enter-2 { animation-delay: 160ms; }
+.hero-enter-3 { animation-delay: 300ms; }
+.hero-enter-4 { animation-delay: 450ms; }
+
+/* Animated gradient heading */
+.hero-grad-animate {
+  background: linear-gradient(90deg, #0066ff, #60a5fa, #0066ff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: grad-shift 4s ease infinite;
+}
+
+/* Hero background slow drift */
+.hero-bg-drift {
+  animation: bg-drift 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* =============================================
+   SCROLL REVEAL SYSTEM
+   ============================================= */
+
+/* Hidden state — applied by scroll-reveal.js */
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+/* Revealed state — added by scroll-reveal.js */
+.is-revealed {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* =============================================
+   SKELETON LOADING
+   ============================================= */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.09) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: var(--radius);
+  will-change: background-position;
+}
+
+/* Product card skeleton */
+.skeleton-card {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+.skeleton-card .sk-img {
+  aspect-ratio: 4/5;
+  border-radius: var(--radius-lg);
+  margin-bottom: .75rem;
+}
+@media (min-width: 768px) {
+  .skeleton-card .sk-img { border-radius: var(--radius-xl); margin-bottom: 1rem; }
+}
+.skeleton-card .sk-title {
+  height: 1rem;
+  width: 80%;
+  margin-bottom: .5rem;
+  border-radius: 4px;
+}
+.skeleton-card .sk-price {
+  height: .85rem;
+  width: 50%;
+  border-radius: 4px;
+}
+
+/* Blog card skeleton */
+.skeleton-blog {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.skeleton-blog .sk-img {
+  aspect-ratio: 16/10;
+  border-radius: var(--radius-lg);
+}
+.skeleton-blog .sk-line { height: .85rem; border-radius: 4px; }
+.skeleton-blog .sk-line.wide  { width: 90%; }
+.skeleton-blog .sk-line.med   { width: 65%; }
+.skeleton-blog .sk-line.short { width: 40%; }
+
+/* =============================================
+   MODAL ANIMATIONS
+   ============================================= */
+
+.modal-backdrop {
+  transition: opacity .2s ease, visibility .2s ease;
+}
+.modal-backdrop .modal {
+  animation: modal-in .28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+.modal-backdrop.closing .modal {
+  animation: modal-out .2s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+/* =============================================
+   TOAST
+   ============================================= */
+
+.toast {
+  animation: slide-in .3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* =============================================
+   MISC UTILITIES
+   ============================================= */
+
+/* Soft primary glow — used by btn-primary */
+@keyframes btn-glow {
+  0%, 100% { box-shadow: 0 4px 15px rgba(0,102,255,.35); }
+  50%       { box-shadow: 0 4px 25px rgba(0,102,255,.55); }
+}
+
+/* prefers-reduced-motion — kill everything */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal-hidden {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>وبلاگ | مدیریت</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body class="admin-layout">
+  <main class="admin-main">
+    <header>
+      <div><h1>مدیریت وبلاگ</h1><p>افزودن، ویرایش و حذف مقالات</p></div>
+      <button class="btn btn-primary" id="add-btn">مقاله جدید</button>
+    </header>
+    <div class="card">
+      <div class="search-wrap mb-4"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="input" id="search" placeholder="جستجوی مقاله..."></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>تصویر</th><th>عنوان</th><th>دسته</th><th>وضعیت</th><th>تاریخ</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </main>
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+  (async function(){
+    LLadmin.bootstrap('blog');
+    const { I, el, $ } = LLadmin;
+    let filter = '';
+
+    async function loadPosts() {
+      const posts = await LLbackend.getBlogPosts(true);
+      return posts.filter(p => !filter || p.title.toLowerCase().includes(filter.toLowerCase()));
+    }
+
+    async function render() {
+      const rows = $('#rows'); rows.innerHTML = '';
+      const posts = await loadPosts();
+      if (posts.length === 0) { rows.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding:2rem">مقاله‌ای یافت نشد.</td></tr>`; return; }
+      posts.forEach(p => {
+        rows.append(el(`
+          <tr>
+            <td><div class="tbl-thumb">${p.featuredImage?`<img src="${p.featuredImage}">`:I.image}</div></td>
+            <td style="color:#fff">${p.title}</td>
+            <td>${p.category||'—'}</td>
+            <td>${p.status==='published'?'<span class="status-badge status-published">منتشر شده</span>':'<span class="status-badge status-draft">پیش‌نویس</span>'}</td>
+            <td class="text-muted">${LLutil.formatFaDate(p.publishedAt)}</td>
+            <td><div class="tbl-actions">
+              <button class="btn btn-ghost" data-edit="${p.id}" style="color:#60a5fa">${I.edit}</button>
+              <button class="btn btn-ghost" data-del="${p.id}" style="color:#ff6b6b">${I.trash}</button>
+            </div></td>
+          </tr>
+        `));
+      });
+      rows.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openForm(+b.dataset.edit)));
+      rows.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', async () => {
+        if (!confirm('حذف این مقاله؟')) return;
+        await LLbackend.deleteBlog(+b.dataset.del);
+        await render();
+        LLutil.toast('مقاله حذف شد');
+      }));
+    }
+
+    async function openForm(id) {
+      const posts = await LLbackend.getBlogPosts(true);
+      const editing = id ? posts.find(p=>p.id===id) : null;
+      const modal = LLadmin.openModal(`
+        <h2>${editing?'ویرایش مقاله':'مقاله جدید'}</h2>
+        <form id="blog-form">
+          <div class="form-row"><div class="form-group"><label>عنوان *</label><input class="input" name="title" required value="${editing?.title||''}"></div></div>
+          <div class="form-row two">
+            <div class="form-group"><label>نامک</label><input class="input" name="slug" dir="ltr" value="${editing?.slug||''}" placeholder="خودکار"></div>
+            <div class="form-group"><label>دسته</label><input class="input" name="category" value="${editing?.category||''}"></div>
+          </div>
+          <div class="form-row"><div class="form-group"><label>چکیده *</label><textarea class="textarea" name="excerpt" required>${editing?.excerpt||''}</textarea></div></div>
+          <div class="form-row"><div class="form-group"><label>محتوا (HTML)</label><textarea class="textarea" name="content" style="min-height:200px">${editing?.content||''}</textarea></div></div>
+          <div class="form-group mb-4">
+            <label>تصویر شاخص</label>
+            <div id="blog-img-zone-${editing?.id||'new'}"></div>
+            ${editing?.featuredImage ? `<div class="mt-2"><img src="${editing.featuredImage}" style="max-height:70px;border-radius:8px;border:1px solid var(--border)"></div>` : ''}
+            <input type="hidden" name="featuredImage" value="${editing?.featuredImage||''}">
+          </div>
+          <div class="form-row two">
+            <div class="form-group"><label>وضعیت</label>
+              <select class="select" name="status">
+                <option value="draft" ${editing?.status==='draft'?'selected':''}>پیش‌نویس</option>
+                <option value="published" ${editing?.status!=='draft'?'selected':''}>منتشر شده</option>
+              </select>
+            </div>
+            <div class="form-group"><label>برچسب‌ها (با کاما)</label><input class="input" name="tags" value="${(editing?.tags||[]).join(',')}"></div>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">ذخیره</button>
+            <button type="button" class="btn btn-outline" id="cancel">انصراف</button>
+          </div>
+        </form>
+      `, true);
+      const blogImgZoneId = `blog-img-zone-${editing?.id||'new'}`;
+      const { zone: blogImgZone, input: blogImgFile } = LLadmin.makeUploadZone({ id: 'blog-img-up', label: 'آپلود تصویر شاخص', accept: 'image/*' });
+      modal.querySelector('#' + blogImgZoneId)?.append(blogImgZone);
+      blogImgFile.addEventListener('change', async () => {
+        const file = blogImgFile.files[0]; if (!file) return;
+        const url = await LLadmin.uploadImage(file);
+        if (url) { modal.querySelector('[name="featuredImage"]').value = url; LLutil.toast('تصویر آپلود شد'); }
+      });
+      modal.querySelector('#cancel').addEventListener('click', LLadmin.closeModal);
+      modal.querySelector('#blog-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const data = {
+          id: editing?.id,
+          title: f.get('title'),
+          slug: f.get('slug') || f.get('title').toLowerCase().replace(/\s+/g,'-'),
+          excerpt: f.get('excerpt'), content: f.get('content'), category: f.get('category'),
+          image: f.get('featuredImage'), status: f.get('status'),
+          tags: f.get('tags').split(',').map(s=>s.trim()).filter(Boolean),
+          published_at: f.get('publishedAt') || new Date().toISOString().slice(0,16),
+          author: editing?.author || 'تیم لالیگا'
+        };
+        await LLbackend.saveBlog(data);
+        LLadmin.closeModal();
+        await render();
+        LLutil.toast(editing?'بروزرسانی شد':'مقاله اضافه شد');
+      });
+    }
+
+    $('#add-btn').addEventListener('click', () => openForm());
+    $('#search').addEventListener('input', (e) => { filter = e.target.value; render(); });
+    await render();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>پیشنهادات | مدیریت</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body class="admin-layout">
+  <main class="admin-main">
+    <header>
+      <div><h1>مدیریت پیشنهادات ویژه</h1><p>ایجاد آفرهای نامحدود با چند محصول</p></div>
+      <button class="btn btn-primary" id="add-btn">+ پیشنهاد جدید</button>
+    </header>
+    <div class="card">
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>تصویر</th><th>عنوان</th><th>محصولات</th><th>تخفیف</th><th>وضعیت</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </main>
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+  (async function(){
+    LLadmin.bootstrap('offers');
+    const { I, el, $ } = LLadmin;
+
+    async function loadOffers() {
+      return await LLbackend.getOffers(true);
+    }
+
+    async function loadProducts() {
+      return await LLbackend.getProducts({ admin: 1 });
+    }
+
+    async function render() {
+      const [offers, allProducts] = await Promise.all([loadOffers(), loadProducts()]);
+      const rows = $('#rows'); rows.innerHTML = '';
+      if (offers.length === 0) {
+        rows.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding:2rem">پیشنهادی ثبت نشده.</td></tr>`;
+        return;
+      }
+      offers.forEach(o => {
+        const prodNames = (o.productIds || []).map(id => allProducts.find(p => p.id === id)?.name).filter(Boolean).join('، ') || '—';
+        rows.append(el(`
+          <tr>
+            <td><div class="tbl-thumb">${o.imageUrl ? `<img src="${o.imageUrl}" loading="lazy">` : I.image}</div></td>
+            <td style="color:#fff">${o.title}</td>
+            <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${prodNames}</td>
+            <td class="text-primary">${LLutil.toFa(o.discountPercent)}٪</td>
+            <td>${o.active !== false
+              ? '<span class="status-badge status-published">فعال</span>'
+              : '<span class="status-badge status-draft">غیرفعال</span>'}</td>
+            <td><div class="tbl-actions">
+              <button class="btn btn-ghost" data-edit="${o.id}" style="color:#60a5fa">${I.edit}</button>
+              <button class="btn btn-ghost" data-del="${o.id}" style="color:#ff6b6b">${I.trash}</button>
+            </div></td>
+          </tr>
+        `));
+      });
+      rows.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openForm(+b.dataset.edit)));
+      rows.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', async () => {
+        if (!confirm('حذف این پیشنهاد؟')) return;
+        await LLbackend.deleteOffer(+b.dataset.del);
+        await render();
+        LLutil.toast('پیشنهاد حذف شد');
+      }));
+    }
+
+    async function openForm(id) {
+      const [offers, allProducts] = await Promise.all([loadOffers(), loadProducts()]);
+      const editing = id ? offers.find(o => o.id === id) : null;
+      let selectedProductIds = [...(editing?.productIds || [])];
+
+      const productOpts = allProducts.map(p =>
+        `<option value="${p.id}">${p.name}</option>`
+      ).join('');
+
+      const modal = LLadmin.openModal(`
+        <h2>${editing ? 'ویرایش پیشنهاد' : 'پیشنهاد جدید'}</h2>
+        <form id="off-form" autocomplete="off">
+          <div class="form-row"><div class="form-group">
+            <label>عنوان *</label>
+            <input class="input" name="title" required value="${editing?.title||''}">
+          </div></div>
+          <div class="form-row"><div class="form-group">
+            <label>توضیحات</label>
+            <textarea class="textarea" name="description">${editing?.description||''}</textarea>
+          </div></div>
+          <div class="form-row two">
+            <div class="form-group"><label>درصد تخفیف *</label>
+              <input class="input" name="discountPercent" type="number" min="1" max="99" required value="${editing?.discountPercent||''}">
+            </div>
+            <div class="form-group"><label>وضعیت</label>
+              <select class="select" name="active">
+                <option value="1" ${editing?.active !== false ? 'selected' : ''}>فعال</option>
+                <option value="0" ${editing?.active === false ? 'selected' : ''}>غیرفعال</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group mb-4">
+            <label>تصویر بنر</label>
+            <div id="offer-img-zone"></div>
+            ${editing?.imageUrl ? `<div class="mt-2"><img src="${editing.imageUrl}" style="max-height:80px;border-radius:8px;border:1px solid var(--border)"></div>` : ''}
+            <input type="hidden" name="imageUrl" value="${editing?.imageUrl||''}">
+          </div>
+
+          <div class="form-group mb-4">
+            <label>شمارش معکوس</label>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+              <label class="checkbox-label">
+                <input type="checkbox" name="countdownEnabled" ${editing?.countdown?.enabled ? 'checked' : ''}> فعال
+              </label>
+              <div style="display:flex;align-items:center;gap:.5rem">
+                <input class="input" name="countdownHours" type="number" min="1" max="720" value="${editing?.countdown?.hours||24}" style="width:100px">
+                <span class="text-muted">ساعت</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group mb-4">
+            <label>محصولات شامل این آفر</label>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem">
+              <select class="select" id="prod-add-select" style="flex:1;min-width:0">${productOpts}</select>
+              <button type="button" class="btn btn-outline" id="prod-add-btn">+ افزودن</button>
+            </div>
+            <div id="selected-products-list" class="selected-products"></div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">ذخیره</button>
+            <button type="button" class="btn btn-outline" id="cancel">انصراف</button>
+          </div>
+        </form>
+      `, true);
+
+      // Image upload
+      const { zone, input: imgInput } = LLadmin.makeUploadZone({ id: 'offer-img-up', label: 'آپلود تصویر بنر', accept: 'image/*' });
+      modal.querySelector('#offer-img-zone').append(zone);
+      imgInput.addEventListener('change', async () => {
+        const file = imgInput.files[0];
+        if (!file) return;
+        const url = await LLadmin.uploadImage(file);
+        if (url) {
+          modal.querySelector('[name="imageUrl"]').value = url;
+          LLutil.toast('تصویر آپلود شد');
+        }
+      });
+
+      // Selected products list
+      function renderSelectedProducts() {
+        const wrap = modal.querySelector('#selected-products-list');
+        wrap.innerHTML = '';
+        if (!selectedProductIds.length) {
+          wrap.innerHTML = '<p class="text-muted" style="font-size:.875rem">محصولی انتخاب نشده</p>';
+          return;
+        }
+        selectedProductIds.forEach((pid, idx) => {
+          const p = allProducts.find(x => x.id === pid);
+          if (!p) return;
+          const item = el(`
+            <div class="selected-prod-item">
+              <img src="${p.images[0]||''}" alt="" class="selected-prod-img" loading="lazy">
+              <span style="flex:1;color:#fff;font-size:.875rem">${p.name}</span>
+              ${idx > 0 ? `<button type="button" class="btn btn-ghost btn-icon move-prod" data-i="${idx}" data-dir="-1" title="بالا">↑</button>` : '<span style="width:40px"></span>'}
+              ${idx < selectedProductIds.length-1 ? `<button type="button" class="btn btn-ghost btn-icon move-prod" data-i="${idx}" data-dir="1" title="پایین">↓</button>` : '<span style="width:40px"></span>'}
+              <button type="button" class="btn btn-ghost btn-icon del-prod" data-pid="${pid}" style="color:#ff6b6b">&times;</button>
+            </div>
+          `);
+          item.querySelectorAll('.move-prod').forEach(b => b.addEventListener('click', () => {
+            const from = +b.dataset.i, dir = +b.dataset.dir;
+            const tmp = selectedProductIds[from]; selectedProductIds[from] = selectedProductIds[from+dir]; selectedProductIds[from+dir] = tmp;
+            renderSelectedProducts();
+          }));
+          item.querySelector('.del-prod').addEventListener('click', () => {
+            selectedProductIds = selectedProductIds.filter(x => x !== pid);
+            renderSelectedProducts();
+          });
+          wrap.append(item);
+        });
+      }
+      renderSelectedProducts();
+
+      modal.querySelector('#prod-add-btn').addEventListener('click', () => {
+        const sel = modal.querySelector('#prod-add-select');
+        const pid = +sel.value;
+        if (!pid) return;
+        if (selectedProductIds.includes(pid)) { LLutil.toast('این محصول قبلاً اضافه شده', '', 'err'); return; }
+        selectedProductIds.push(pid);
+        renderSelectedProducts();
+      });
+
+      modal.querySelector('#cancel').addEventListener('click', LLadmin.closeModal);
+      modal.querySelector('#off-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const data = {
+          id: editing?.id,
+          title: f.get('title'),
+          description: f.get('description'),
+          discountPercent: +f.get('discountPercent'),
+          active: f.get('active') === '1',
+          imageUrl: f.get('imageUrl'),
+          productIds: [...selectedProductIds],
+          countdown: {
+            enabled: !!f.get('countdownEnabled'),
+            hours: +f.get('countdownHours') || 24
+          }
+        };
+        await LLbackend.saveOffer(data);
+        LLadmin.closeModal();
+        await render();
+        LLutil.toast(editing ? 'بروزرسانی شد' : 'پیشنهاد اضافه شد');
+      });
+    }
+
+    $('#add-btn').addEventListener('click', () => openForm());
+    await render();
+  })();
+  </script>
+</body>
+</html>

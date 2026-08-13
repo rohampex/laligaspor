@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>محصولات | لالیگا اسپرت</title>
+  <meta name="description" content="کالکشن کامل پیراهن‌های باشگاهی، ملی و کلاسیک فوتبال">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body>
+  <main class="page">
+    <div class="container">
+      <div class="mb-8" data-reveal>
+        <h1 style="font-size:2.5rem;font-weight:900;margin-bottom:1.5rem">کالکشن محصولات</h1>
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="input" id="search-input" placeholder="جستجو در محصولات..." aria-label="جستجو در محصولات">
+        </div>
+      </div>
+
+      <div class="cat-scroller d-md-none" id="cat-scroller" role="list" aria-label="دسته‌بندی‌ها"></div>
+
+      <div class="products-wrap">
+        <aside class="sidebar d-md-block" aria-label="فیلتر دسته‌بندی">
+          <div class="sidebar-inner">
+            <h3>دسته‌بندی‌ها</h3>
+            <ul class="cat-list" id="cat-list" role="list"></ul>
+          </div>
+        </aside>
+        <div style="flex:1;min-width:0">
+          <div id="products-grid" class="grid-products lg-3" role="list" aria-label="لیست محصولات"></div>
+          <div id="empty" class="empty hidden" role="status">
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+            <h3>محصولی یافت نشد</h3>
+            <p>با این فیلترها هیچ محصولی پیدا نکردیم.</p>
+            <button id="clear-filters" class="btn btn-outline">پاک کردن فیلترها</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/products.js"></script>
+  <script src="/js/scroll-reveal.js" defer></script>
+</body>
+</html>

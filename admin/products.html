@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>محصولات | مدیریت</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body class="admin-layout">
+  <main class="admin-main">
+    <header>
+      <div><h1>مدیریت محصولات</h1><p>افزودن، ویرایش و حذف محصولات</p></div>
+      <button class="btn btn-primary" id="add-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg>
+        افزودن محصول جدید
+      </button>
+    </header>
+    <div class="card">
+      <div class="search-wrap mb-4">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="input" id="search" placeholder="جستجوی محصول...">
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>تصویر</th><th>نام</th><th>دسته</th><th>قیمت</th><th>موجودی</th><th>وضعیت</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </main>
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+  (async function(){
+    LLadmin.bootstrap('products');
+    const { I, el, $ } = LLadmin;
+    let filter = '';
+
+    async function loadCategories() {
+      return await LLbackend.getCategories(true);
+    }
+
+    async function loadProducts() {
+      const products = await LLbackend.getProducts({ admin: 1 });
+      return products.map(p => ({
+        ...p,
+        sizes: LL.normalizeSC(p.sizes),
+        colors: LL.normalizeSC(p.colors)
+      }));
+    }
+
+    async function render() {
+      const [cats, products] = await Promise.all([loadCategories(), loadProducts()]);
+      const rows = $('#rows');
+      rows.innerHTML = '';
+      const filtered = products.filter(p => !filter || p.name.toLowerCase().includes(filter.toLowerCase()));
+      if (filtered.length === 0) {
+        rows.innerHTML = `<tr><td colspan="7" class="text-center text-muted" style="padding:2rem">محصولی یافت نشد.</td></tr>`;
+        return;
+      }
+      filtered.forEach(p => {
+        const cat = cats.find(c => c.slug === p.category);
+        rows.append(el(`
+          <tr>
+            <td><div class="tbl-thumb"><img src="${p.images[0]||''}" alt="" loading="lazy"></div></td>
+            <td style="color:#fff">${p.name}</td>
+            <td>${cat?.name || '—'}</td>
+            <td class="text-primary">${LLutil.formatPersianPrice(p.price)}</td>
+            <td>${LLutil.toFa(p.stock)}</td>
+            <td>${p.stock===0
+              ? '<span class="status-badge status-draft">ناموجود</span>'
+              : '<span class="status-badge status-published">موجود</span>'}</td>
+            <td><div class="tbl-actions">
+              <button class="btn btn-ghost" data-edit="${p.id}" title="ویرایش" style="color:#60a5fa">${I.edit}</button>
+              <button class="btn btn-ghost" data-del="${p.id}" title="حذف" style="color:#ff6b6b">${I.trash}</button>
+            </div></td>
+          </tr>
+        `));
+      });
+      rows.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openForm(+b.dataset.edit)));
+      rows.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', async () => {
+        if (!confirm('آیا از حذف این محصول اطمینان دارید؟')) return;
+        await LLbackend.deleteProduct(+b.dataset.del);
+        await render();
+        LLutil.toast('محصول حذف شد');
+      }));
+    }
+
+    // -------- Tag-based size/color manager --------
+    function makeSCManager(container, initialItems, label) {
+      // items: [{value, available}]
+      let items = [...initialItems];
+
+      function rerender() {
+        container.innerHTML = '';
+        // Existing tags
+        const tagsRow = el('<div class="sc-tags"></div>');
+        items.forEach((item, idx) => {
+          const tag = el(`
+            <div class="sc-tag ${item.available ? '' : 'unavailable'}" data-idx="${idx}" title="کلیک برای تغییر وضعیت">
+              <span class="sc-tag-value">${item.value}</span>
+              <div class="sc-tag-actions">
+                <button class="sc-toggle" title="${item.available ? 'ناموجود کن' : 'موجود کن'}">
+                  ${item.available
+                    ? '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>'
+                    : '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>'}
+                </button>
+                <button class="sc-del" title="حذف">
+                  <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+          `);
+          tag.querySelector('.sc-toggle').addEventListener('click', (e) => {
+            e.stopPropagation();
+            items[idx].available = !items[idx].available;
+            rerender();
+          });
+          tag.querySelector('.sc-del').addEventListener('click', (e) => {
+            e.stopPropagation();
+            items.splice(idx, 1);
+            rerender();
+          });
+          tagsRow.append(tag);
+        });
+        container.append(tagsRow);
+
+        // Add row
+        const addRow = el(`
+          <div class="sc-add-row">
+            <input class="input sc-input" placeholder="افزودن ${label}..." style="flex:1;min-width:0">
+            <button class="btn btn-outline sc-add-btn" type="button">افزودن</button>
+          </div>
+        `);
+        const input = addRow.querySelector('.sc-input');
+        const addBtn = addRow.querySelector('.sc-add-btn');
+        const doAdd = () => {
+          const v = input.value.trim();
+          if (!v) return;
+          if (items.some(i => i.value === v)) { LLutil.toast('این مقدار قبلاً اضافه شده', '', 'err'); return; }
+          items.push({ value: v, available: true });
+          input.value = '';
+          rerender();
+          container.querySelector('.sc-input').focus();
+        };
+        addBtn.addEventListener('click', doAdd);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); doAdd(); } });
+        container.append(addRow);
+      }
+
+      rerender();
+      return { getItems: () => items };
+    }
+
+    // -------- Product form --------
+    async function openForm(id) {
+      const [products, cats] = await Promise.all([loadProducts(), loadCategories()]);
+      const editing = id ? products.find(p => p.id === id) : null;
+      const catOpts = cats.map(c => `<option value="${c.slug}" ${editing?.category===c.slug?'selected':''}>${c.name}</option>`).join('');
+
+      const modal = LLadmin.openModal(`
+        <h2>${editing ? 'ویرایش محصول' : 'محصول جدید'}</h2>
+        <form id="prod-form" autocomplete="off">
+          <div class="form-row two">
+            <div class="form-group"><label>نام محصول *</label><input class="input" name="name" required value="${editing?.name||''}"></div>
+            <div class="form-group"><label>نامک (Slug)</label><input class="input" name="slug" dir="ltr" value="${editing?.slug||''}" placeholder="خودکار ایجاد می‌شود"></div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group"><label>قیمت (تومان) *</label><input class="input" name="price" type="number" required value="${editing?.price||''}"></div>
+            <div class="form-group"><label>قیمت اصلی (برای نمایش تخفیف)</label><input class="input" name="originalPrice" type="number" value="${editing?.originalPrice||''}"></div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group"><label>موجودی *</label><input class="input" name="stock" type="number" required value="${editing?.stock ?? 0}"></div>
+            <div class="form-group"><label>دسته‌بندی</label><select class="select" name="category">${catOpts}</select></div>
+          </div>
+
+          <div class="form-group mb-4">
+            <label>سایزها — کلیک روی تگ برای تغییر وضعیت موجودی</label>
+            <div id="sizes-manager" class="sc-manager"></div>
+          </div>
+
+          <div class="form-group mb-4">
+            <label>رنگ‌بندی — کلیک روی تگ برای تغییر وضعیت موجودی</label>
+            <div id="colors-manager" class="sc-manager"></div>
+          </div>
+
+          <div class="form-group mb-4">
+            <label>تصاویر محصول</label>
+            <div id="product-images-zone"></div>
+            <p class="text-muted mt-2" style="font-size:.8rem">تصاویر فعلی:</p>
+            <div id="existing-images" class="existing-img-list"></div>
+          </div>
+
+          <div class="form-row"><div class="form-group"><label>توضیحات</label><textarea class="textarea" name="description">${editing?.description||''}</textarea></div></div>
+          <div class="form-row" style="display:flex;gap:1.5rem;flex-wrap:wrap">
+            <label class="checkbox-label"><input type="checkbox" name="isFeatured" ${editing?.isFeatured?'checked':''}> ویژه</label>
+            <label class="checkbox-label"><input type="checkbox" name="isNew" ${editing?.isNew?'checked':''}> جدید</label>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary" id="prod-submit">ذخیره</button>
+            <button type="button" class="btn btn-outline" id="cancel">انصراف</button>
+          </div>
+        </form>
+      `, true);
+
+      // Init size/color managers
+      const initSizes = LL.normalizeSC(editing?.sizes || []);
+      const initColors = LL.normalizeSC(editing?.colors || []);
+      const sizesMgr = makeSCManager(modal.querySelector('#sizes-manager'), initSizes, 'سایز');
+      const colorsMgr = makeSCManager(modal.querySelector('#colors-manager'), initColors, 'رنگ');
+
+      // Existing images list
+      let currentImages = [...(editing?.images || [])];
+      function renderExistingImages() {
+        const wrap = modal.querySelector('#existing-images');
+        wrap.innerHTML = '';
+        if (!currentImages.length) { wrap.innerHTML = '<span class="text-muted" style="font-size:.8rem">هیچ تصویری اضافه نشده</span>'; return; }
+        currentImages.forEach((url, i) => {
+          const item = el(`
+            <div class="existing-img-item">
+              <img src="${url}" alt="" loading="lazy">
+              <button class="del-img" data-i="${i}" title="حذف">&times;</button>
+              ${i > 0 ? `<button class="move-img" data-i="${i}" data-dir="-1" title="جا به جا کن">↑</button>` : ''}
+              ${i < currentImages.length-1 ? `<button class="move-img" data-i="${i}" data-dir="1" title="جا به جا کن">↓</button>` : ''}
+            </div>
+          `);
+          item.querySelector('.del-img').addEventListener('click', () => { currentImages.splice(i, 1); renderExistingImages(); });
+          item.querySelectorAll('.move-img').forEach(b => b.addEventListener('click', () => {
+            const from = +b.dataset.i, dir = +b.dataset.dir;
+            const tmp = currentImages[from]; currentImages[from] = currentImages[from+dir]; currentImages[from+dir] = tmp;
+            renderExistingImages();
+          }));
+          wrap.append(item);
+        });
+      }
+      renderExistingImages();
+
+      // Image upload zone
+      const { zone, input: imgInput } = LLadmin.makeUploadZone({
+        id: 'prod-img-upload',
+        label: 'آپلود تصویر جدید',
+        accept: 'image/*',
+        multiple: true
+      });
+      modal.querySelector('#product-images-zone').append(zone);
+
+      imgInput.addEventListener('change', async () => {
+        const files = Array.from(imgInput.files);
+        if (!files.length) return;
+        const submitBtn = modal.querySelector('#prod-submit');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'در حال آپلود...';
+        for (const file of files) {
+          const url = await LLadmin.uploadImage(file);
+          if (url) currentImages.push(url);
+        }
+        renderExistingImages();
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'ذخیره';
+        imgInput.value = '';
+      });
+
+      modal.querySelector('#cancel').addEventListener('click', LLadmin.closeModal);
+      modal.querySelector('#prod-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const price = +f.get('price');
+        const originalPrice = f.get('originalPrice') ? +f.get('originalPrice') : null;
+        const data = {
+          id: editing?.id,
+          name: f.get('name'),
+          slug: f.get('slug') || f.get('name').toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+          price,
+          originalPrice,
+          stock: +f.get('stock'),
+          category: f.get('category'),
+          sizes: sizesMgr.getItems(),
+          colors: colorsMgr.getItems(),
+          images: currentImages,
+          description: f.get('description'),
+          isFeatured: !!f.get('isFeatured'),
+          isNew: !!f.get('isNew')
+        };
+        if (originalPrice && originalPrice > price) {
+          data.discountPercent = Math.round((1 - price / originalPrice) * 100);
+        } else {
+          data.discountPercent = null;
+        }
+        await LLbackend.saveProduct(data);
+        LLadmin.closeModal();
+        await render();
+        LLutil.toast(editing ? 'محصول بروزرسانی شد' : 'محصول اضافه شد');
+      });
+    }
+
+    $('#add-btn').addEventListener('click', () => openForm());
+    $('#search').addEventListener('input', (e) => { filter = e.target.value; render(); });
+    await render();
+  })();
+  </script>
+</body>
+</html>

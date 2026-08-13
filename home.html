@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>لالیگا اسپرت | فروشگاه لباس و تجهیزات ورزشی</title>
+  <meta name="description" content="بزرگترین فروشگاه آنلاین کیت‌های باشگاهی و ملی فوتبال با بالاترین کیفیت اورجینال.">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body>
+  <main>
+    <!-- Hero — content injected by home.js from content management -->
+    <section class="hero" id="hero-section" aria-label="بنر اصلی">
+      <div class="hero-bg" id="hero-bg">
+        <img id="hero-bg-img" class="hero-bg-drift" src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1800&h=1000&fit=crop" alt="LaLiga Sports Hero" loading="eager">
+      </div>
+      <div class="container hero-content" id="hero-content">
+        <span class="hero-eyebrow hero-enter hero-enter-1" id="hero-eyebrow">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span id="hero-eyebrow-text">در حال بارگذاری...</span>
+        </span>
+        <h1 class="hero-enter hero-enter-2" id="hero-title">بازی رو<br><span class="grad" id="hero-highlight">تسخیر کن</span></h1>
+        <p class="lead hero-enter hero-enter-3" id="hero-subtitle">جدیدترین کیت‌های باشگاهی و ملی با بالاترین کیفیت اورجینال. انتخابی برای قهرمانان واقعی.</p>
+        <div class="hero-ctas hero-enter hero-enter-4" id="hero-ctas">
+          <a href="/products.html" class="btn btn-primary btn-lg btn-round" id="hero-cta1">مشاهده کالکشن</a>
+          <a href="/offers.html" class="btn btn-glass btn-lg btn-round" id="hero-cta2">تخفیف‌های ویژه</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Promo Banner (hidden by default, shown when enabled in content management) -->
+    <div id="promo-banner" style="display:none"></div>
+
+    <!-- Categories -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header" id="cats-header" data-reveal>
+          <div>
+            <h2 id="cats-title">دسته‌بندی‌های محبوب</h2>
+            <p id="cats-subtitle">بر اساس سبک بازی خود انتخاب کنید</p>
+          </div>
+        </div>
+        <div class="cat-grid" id="home-cats"></div>
+      </div>
+    </section>
+
+    <!-- Featured products -->
+    <section class="section section-dark">
+      <div class="container">
+        <div class="section-header" data-reveal>
+          <div>
+            <h2 id="featured-title">محصولات برگزیده</h2>
+            <p id="featured-subtitle">محبوب‌ترین انتخاب‌های این ماه</p>
+          </div>
+          <a href="/products.html" class="btn btn-ghost">مشاهده همه</a>
+        </div>
+        <div class="grid-products" id="home-featured"></div>
+      </div>
+    </section>
+
+    <!-- Trust -->
+    <section class="section" style="position:relative;overflow:hidden">
+      <div class="blur-ball" aria-hidden="true"></div>
+      <div class="container">
+        <div class="trust-grid" id="home-trust"></div>
+      </div>
+    </section>
+
+    <!-- New arrivals -->
+    <section class="section section-dark">
+      <div class="container">
+        <div class="section-header" data-reveal>
+          <div>
+            <h2 id="new-title">جدیدترین‌ها</h2>
+            <p id="new-subtitle">تازه رسیده‌های لالیگا اسپرت</p>
+          </div>
+        </div>
+        <div class="grid-products" id="home-new"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/home.js"></script>
+  <script src="/js/scroll-reveal.js" defer></script>
+</body>
+</html>

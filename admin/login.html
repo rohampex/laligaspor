@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ورود | مدیریت لالیگا</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card animate-fade-up" role="main">
+      <a href="/home.html" class="logo" aria-label="لالیگا اسپرت"><span class="bubble" aria-hidden="true">L</span>LaLiga <span class="sports">Admin</span></a>
+      <h1>ورود به پنل</h1>
+      <p class="sub">با اطلاعات مدیریتی وارد شوید</p>
+      <form id="login-form" novalidate>
+        <div class="form-group mb-4">
+          <label for="username">نام کاربری</label>
+          <input class="input" id="username" type="text" autocomplete="username" required placeholder="admin" aria-required="true">
+        </div>
+        <div class="form-group mb-4">
+          <label for="password">رمز عبور</label>
+          <input class="input" id="password" type="password" autocomplete="current-password" required placeholder="••••••••" aria-required="true">
+        </div>
+        <div id="login-error" class="hidden" style="color:#ff6b6b;font-size:.875rem;margin-bottom:1rem" role="alert"></div>
+        <button type="submit" class="btn btn-primary btn-block btn-round" id="login-btn">ورود به سیستم</button>
+      </form>
+    </div>
+  </div>
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script>
+    (async function() {
+      const user = await LLbackend.me();
+      if (user) location.href = '/admin/dashboard.html';
+    })();
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+      const errEl = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+      errEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'در حال ورود...';
+      try {
+        await LLbackend.login(u, p);
+        location.href = '/admin/dashboard.html';
+      } catch (error) {
+        errEl.textContent = 'نام کاربری یا رمز عبور اشتباه است.';
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'ورود به سیستم';
+        document.getElementById('password').focus();
+      }
+    });
+  </script>
+</body>
+</html>

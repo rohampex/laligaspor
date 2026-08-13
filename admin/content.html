@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>محتوای سایت | مدیریت</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body class="admin-layout">
+  <main class="admin-main">
+    <header>
+      <div><h1>مدیریت محتوای سایت</h1><p>ویرایش هیرو، دسته‌بندی‌ها و متون صفحه اصلی</p></div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="content-tabs mb-4">
+      <button class="content-tab active" data-tab="hero">هیرو</button>
+      <button class="content-tab" data-tab="homepage">صفحه اصلی</button>
+      <button class="content-tab" data-tab="categories">دسته‌بندی‌ها</button>
+    </div>
+
+    <!-- Hero Tab -->
+    <div class="tab-pane active" id="tab-hero">
+      <div class="card" style="max-width:900px">
+        <h2 class="card-title">بخش هیرو</h2>
+        <form id="hero-form" autocomplete="off">
+          <div class="form-group mb-4">
+            <label>تصویر پس‌زمینه</label>
+            <div id="hero-img-zone"></div>
+            <div id="hero-img-preview" class="mt-2"></div>
+            <input type="hidden" name="backgroundImage" id="heroImgInput">
+          </div>
+          <div class="form-row"><div class="form-group">
+            <label>متن تیتر کوچک (Eyebrow)</label>
+            <input class="input" name="eyebrow" id="heroEyebrow" placeholder="پیام کوتاه بالای تیتر">
+          </div></div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label>تیتر اصلی (خط اول)</label>
+              <input class="input" name="title" id="heroTitle">
+            </div>
+            <div class="form-group">
+              <label>تیتر برجسته (خط دوم — آبی)</label>
+              <input class="input" name="titleHighlight" id="heroTitleHL">
+            </div>
+          </div>
+          <div class="form-row"><div class="form-group">
+            <label>متن توضیحات</label>
+            <textarea class="textarea" name="subtitle" id="heroSubtitle" rows="2"></textarea>
+          </div></div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label>متن دکمه اول</label>
+              <input class="input" name="cta1Text" id="heroCta1Text">
+            </div>
+            <div class="form-group">
+              <label>لینک دکمه اول</label>
+              <input class="input" name="cta1Link" id="heroCta1Link" dir="ltr" placeholder="/products.html">
+            </div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label>متن دکمه دوم</label>
+              <input class="input" name="cta2Text" id="heroCta2Text">
+            </div>
+            <div class="form-group">
+              <label>لینک دکمه دوم</label>
+              <input class="input" name="cta2Link" id="heroCta2Link" dir="ltr" placeholder="/offers.html">
+            </div>
+          </div>
+          <div class="modal-actions"><button type="submit" class="btn btn-primary">ذخیره هیرو</button></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Homepage Tab -->
+    <div class="tab-pane" id="tab-homepage">
+      <div class="card" style="max-width:900px">
+        <h2 class="card-title">عناوین و متون صفحه اصلی</h2>
+        <form id="homepage-form" autocomplete="off">
+          <div class="form-row two">
+            <div class="form-group"><label>عنوان بخش دسته‌بندی‌ها</label><input class="input" name="categoriesTitle"></div>
+            <div class="form-group"><label>توضیح بخش دسته‌بندی‌ها</label><input class="input" name="categoriesSubtitle"></div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group"><label>عنوان محصولات برگزیده</label><input class="input" name="featuredTitle"></div>
+            <div class="form-group"><label>توضیح محصولات برگزیده</label><input class="input" name="featuredSubtitle"></div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group"><label>عنوان جدیدترین‌ها</label><input class="input" name="newTitle"></div>
+            <div class="form-group"><label>توضیح جدیدترین‌ها</label><input class="input" name="newSubtitle"></div>
+          </div>
+
+          <hr style="border-color:var(--border);margin:1.5rem 0">
+          <h3 style="color:#fff;margin-bottom:1rem;font-size:1rem">بنر تبلیغاتی</h3>
+          <div class="form-row" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+            <label class="checkbox-label"><input type="checkbox" name="promoBannerEnabled"> نمایش بنر</label>
+          </div>
+          <div class="form-row two">
+            <div class="form-group"><label>عنوان بنر</label><input class="input" name="promoBannerTitle"></div>
+            <div class="form-group"><label>لینک بنر</label><input class="input" name="promoBannerLink" dir="ltr"></div>
+          </div>
+          <div class="form-group mb-4">
+            <label>تصویر بنر</label>
+            <div id="promo-img-zone"></div>
+            <input type="hidden" name="promoBannerImage" id="promoBannerImageInput">
+          </div>
+          <div class="modal-actions"><button type="submit" class="btn btn-primary">ذخیره صفحه اصلی</button></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Categories Tab -->
+    <div class="tab-pane" id="tab-categories">
+      <div class="card">
+        <h2 class="card-title">ویرایش دسته‌بندی‌ها</h2>
+        <p class="text-muted mb-4" style="font-size:.875rem">برای ویرایش کامل دسته‌بندی‌ها به <a href="/admin/categories.html" style="color:var(--primary)">صفحه مدیریت دسته‌بندی‌ها</a> مراجعه کنید.</p>
+        <div id="cats-preview" class="cats-content-grid"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+  (async function(){
+    LLadmin.bootstrap('content');
+    const { el, $ } = LLadmin;
+
+    // Tabs
+    document.querySelectorAll('.content-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.content-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    const content = await LLbackend.getContent();
+    const hero = content.hero;
+
+    // Populate hero form
+    $('#heroEyebrow').value = hero.eyebrow || '';
+    $('#heroTitle').value = hero.title || '';
+    $('#heroTitleHL').value = hero.titleHighlight || '';
+    $('#heroSubtitle').value = hero.subtitle || '';
+    $('#heroCta1Text').value = hero.cta1Text || '';
+    $('#heroCta1Link').value = hero.cta1Link || '';
+    $('#heroCta2Text').value = hero.cta2Text || '';
+    $('#heroCta2Link').value = hero.cta2Link || '';
+    $('#heroImgInput').value = hero.backgroundImage || '';
+    if (hero.backgroundImage) {
+      $('#hero-img-preview').innerHTML = `<img src="${hero.backgroundImage}" style="max-height:100px;border-radius:8px;border:1px solid var(--border)">`;
+    }
+
+    // Hero image upload
+    const { zone: heroZone, input: heroImgFile } = LLadmin.makeUploadZone({ id: 'hero-img-up', label: 'آپلود تصویر پس‌زمینه', accept: 'image/*' });
+    $('#hero-img-zone').append(heroZone);
+    heroImgFile.addEventListener('change', async () => {
+      const file = heroImgFile.files[0]; if (!file) return;
+      const url = await LLadmin.uploadImage(file);
+      if (url) {
+        $('#heroImgInput').value = url;
+        $('#hero-img-preview').innerHTML = `<img src="${url}" style="max-height:100px;border-radius:8px;border:1px solid var(--border)">`;
+        LLutil.toast('تصویر آپلود شد');
+      }
+    });
+
+    $('#hero-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.target);
+      await LLbackend.saveContent({ hero: {
+        backgroundImage: f.get('backgroundImage'),
+        eyebrow: f.get('eyebrow'),
+        title: f.get('title'),
+        titleHighlight: f.get('titleHighlight'),
+        subtitle: f.get('subtitle'),
+        cta1Text: f.get('cta1Text'),
+        cta1Link: f.get('cta1Link'),
+        cta2Text: f.get('cta2Text'),
+        cta2Link: f.get('cta2Link')
+      }});
+      LLutil.toast('هیرو ذخیره شد');
+    });
+
+    // ---- Homepage ----
+    const hp = content.homepage;
+    const hpForm = $('#homepage-form');
+    hpForm.categoriesTitle.value = hp.categoriesTitle || '';
+    hpForm.categoriesSubtitle.value = hp.categoriesSubtitle || '';
+    hpForm.featuredTitle.value = hp.featuredTitle || '';
+    hpForm.featuredSubtitle.value = hp.featuredSubtitle || '';
+    hpForm.newTitle.value = hp.newTitle || '';
+    hpForm.newSubtitle.value = hp.newSubtitle || '';
+    hpForm.promoBannerEnabled.checked = hp.promoBanner?.enabled || false;
+    hpForm.promoBannerTitle.value = hp.promoBanner?.title || '';
+    hpForm.promoBannerLink.value = hp.promoBanner?.link || '';
+    $('#promoBannerImageInput').value = hp.promoBanner?.image || '';
+
+    const { zone: promoZone, input: promoImgFile } = LLadmin.makeUploadZone({ id: 'promo-img-up', label: 'آپلود تصویر بنر', accept: 'image/*' });
+    $('#promo-img-zone').append(promoZone);
+    promoImgFile.addEventListener('change', async () => {
+      const file = promoImgFile.files[0]; if (!file) return;
+      const url = await LLadmin.uploadImage(file);
+      if (url) { $('#promoBannerImageInput').value = url; LLutil.toast('تصویر آپلود شد'); }
+    });
+
+    hpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.target);
+      await LLbackend.saveContent({ homepage: {
+        categoriesTitle: f.get('categoriesTitle'),
+        categoriesSubtitle: f.get('categoriesSubtitle'),
+        featuredTitle: f.get('featuredTitle'),
+        featuredSubtitle: f.get('featuredSubtitle'),
+        newTitle: f.get('newTitle'),
+        newSubtitle: f.get('newSubtitle'),
+        promoBanner: {
+          enabled: !!f.get('promoBannerEnabled'),
+          title: f.get('promoBannerTitle'),
+          link: f.get('promoBannerLink'),
+          image: f.get('promoBannerImage')
+        }
+      }});
+      LLutil.toast('صفحه اصلی ذخیره شد');
+    });
+
+    // ---- Categories preview ----
+    const cats = await LLbackend.getCategories(true);
+    const catsWrap = $('#cats-preview');
+    cats.forEach(c => {
+      catsWrap.append(el(`
+        <div class="cat-content-item">
+          <div class="cat-content-img">
+            <img src="${c.image}" alt="${c.name}" loading="lazy">
+          </div>
+          <div class="cat-content-info">
+            <strong style="color:#fff">${c.name}</strong>
+            <span class="text-muted" style="font-size:.8rem">${c.productCount} محصول</span>
+            <a href="/admin/categories.html" class="btn btn-ghost" style="font-size:.8rem;padding:.35rem .75rem">ویرایش</a>
+          </div>
+        </div>
+      `));
+    });
+  })();
+  </script>
+</body>
+</html>

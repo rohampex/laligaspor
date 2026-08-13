@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>دسته‌بندی‌ها | مدیریت</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body class="admin-layout">
+  <main class="admin-main">
+    <header>
+      <div><h1>مدیریت دسته‌بندی‌ها</h1><p>افزودن، ویرایش و حذف دسته‌بندی‌ها</p></div>
+      <button class="btn btn-primary" id="add-btn">افزودن دسته‌بندی جدید</button>
+    </header>
+    <div class="card">
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>تصویر</th><th>نام</th><th>نامک</th><th>تعداد محصول</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </div>
+  </main>
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/admin.js"></script>
+  <script>
+  (function(){
+    LLadmin.bootstrap('categories');
+    const { I, el, $ } = LLadmin;
+
+    async function loadCategories() {
+      return await LLbackend.getCategories(true);
+    }
+
+    async function render() {
+      const rows = $('#rows');
+      const cats = await loadCategories();
+      rows.innerHTML = '';
+      if (cats.length === 0) { rows.innerHTML = `<tr><td colspan="5" class="text-center text-muted" style="padding:2rem">دسته‌بندی یافت نشد.</td></tr>`; return; }
+      cats.forEach(c => {
+        rows.append(el(`
+          <tr>
+            <td><div class="tbl-thumb">${c.image?`<img src="${c.image}">`:I.image}</div></td>
+            <td style="color:#fff">${c.name}</td>
+            <td dir="ltr">${c.slug}</td>
+            <td class="text-primary">${LLutil.toFa(c.productCount)}</td>
+            <td><div class="tbl-actions">
+              <button class="btn btn-ghost" data-edit="${c.id}" style="color:#60a5fa">${I.edit}</button>
+              <button class="btn btn-ghost" data-del="${c.id}" style="color:#ff6b6b">${I.trash}</button>
+            </div></td>
+          </tr>
+        `));
+      });
+      rows.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openForm(+b.dataset.edit)));
+      rows.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', async () => {
+        if (!confirm('آیا از حذف این دسته‌بندی اطمینان دارید؟')) return;
+        await LLbackend.deleteCategory(+b.dataset.del);
+        await render();
+        LLutil.toast('دسته حذف شد');
+      }));
+    }
+
+    async function openForm(id) {
+      const cats = await loadCategories();
+      const editing = id ? cats.find(c=>c.id===id) : null;
+      const modal = LLadmin.openModal(`
+        <h2>${editing?'ویرایش دسته‌بندی':'افزودن دسته‌بندی جدید'}</h2>
+        <form id="cat-form">
+          <div class="form-row"><div class="form-group"><label>نام دسته *</label><input class="input" name="name" required value="${editing?.name||''}"></div></div>
+          <div class="form-row"><div class="form-group"><label>نام انگلیسی</label><input class="input" name="nameEn" dir="ltr" value="${editing?.nameEn||''}"></div></div>
+          <div class="form-row"><div class="form-group"><label>نامک (Slug)</label><input class="input" name="slug" dir="ltr" value="${editing?.slug||''}"></div></div>
+          <div class="form-row"><div class="form-group"><label>توضیحات</label><textarea class="textarea" name="description">${editing?.description||''}</textarea></div></div>
+          <div class="form-group mb-4">
+            <label>تصویر دسته‌بندی</label>
+            <div id="cat-img-zone"></div>
+            ${editing?.image ? `<div class="mt-2"><img src="${editing.image}" style="max-height:70px;border-radius:8px;border:1px solid var(--border)"></div>` : ''}
+            <input type="hidden" name="image" value="${editing?.image||''}">
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">ذخیره</button>
+            <button type="button" class="btn btn-outline" id="cancel">انصراف</button>
+          </div>
+        </form>
+      `);
+      const { zone: catZone, input: catImgFile } = LLadmin.makeUploadZone({ id: 'cat-img-up', label: 'آپلود تصویر', accept: 'image/*' });
+      modal.querySelector('#cat-img-zone').append(catZone);
+      catImgFile.addEventListener('change', async () => {
+        const file = catImgFile.files[0]; if (!file) return;
+        const url = await LLadmin.uploadImage(file);
+        if (url) { modal.querySelector('[name="image"]').value = url; LLutil.toast('تصویر آپلود شد'); }
+      });
+      modal.querySelector('#cancel').addEventListener('click', LLadmin.closeModal);
+      modal.querySelector('#cat-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const data = { id: editing?.id, name: f.get('name'), nameEn: f.get('nameEn'), slug: f.get('slug') || f.get('name').toLowerCase().replace(/\s+/g,'-'), description: f.get('description'), image: f.get('image') };
+        await LLbackend.saveCategory(data);
+        LLadmin.closeModal();
+        await render();
+        LLutil.toast(editing?'بروزرسانی شد':'دسته اضافه شد');
+      });
+    }
+
+    document.getElementById('add-btn').addEventListener('click', () => openForm());
+    render();
+  })();
+  </script>
+</body>
+</html>

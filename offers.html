@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>پیشنهادات ویژه | لالیگا اسپرت</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <link rel="stylesheet" href="/css/premium.css">
+</head>
+<body>
+  <main class="page">
+    <div class="container">
+      <div class="offer-hero" data-reveal>
+        <div>
+          <div class="eyebrow">
+            <span class="pulse-dot" style="background:var(--danger)" aria-hidden="true"></span>
+            <span>پیشنهادات ویژه</span>
+          </div>
+          <h1 id="offers-title">تخفیف‌های استثنایی</h1>
+          <p id="offers-subtitle">جدیدترین پیشنهادات ویژه لالیگا اسپرت</p>
+        </div>
+        <div class="countdown-box" aria-label="شمارش معکوس">
+          <div class="cd" id="countdown" aria-live="polite">--:--:--</div>
+          <div class="cd-label">زمان باقیمانده</div>
+        </div>
+      </div>
+
+      <div id="offers-grid" class="offers-grid"></div>
+    </div>
+  </main>
+
+  <script src="/js/data.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/offers.js"></script>
+  <script src="/js/scroll-reveal.js" defer></script>
+</body>
+</html>
